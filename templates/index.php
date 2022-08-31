@@ -1,13 +1,17 @@
 <?php 
 include('templates/blocks/header.php');
 ?>
-<title>phpzag.com : Demo Comment System with Ajax, PHP & MySQL</title>
-<script src="js/comments.js"></script>
+<title>Simple One Page Blog</title>
+<script src="js/copy.js"></script>
 <?php include('templates/blocks/container.php');?>
 	<div class="container">		
-		<h2>Example: Comment System with Ajax, PHP & MySQL</h2>		
-		<br>		
-		<form method="POST" id="commentForm">
+		<h2>Simple One Page Blog</h2>	
+		<div>
+		<button type="text" name="addComment" id="addComment" class="btn btn-primary" >Add Comment</button>
+		<!-- <button type="text" name="hideForm" id="hideForm" class="btn btn-primary" style="display: none;">Hide Form</button> -->
+		</div>		
+		<br>
+		<form method="POST" id="commentForm" style="display: none;">
 			<div class="form-group">
 				<input type="text" name="name" id="name" class="form-control" placeholder="Enter Name" required />
 			</div>

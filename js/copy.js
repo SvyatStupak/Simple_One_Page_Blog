@@ -1,5 +1,4 @@
 $(document).ready(function () {
-	$('#commentForm').hide();
 	showComments();
 
 	$('#commentForm').on('submit', function (event) {
@@ -22,11 +21,31 @@ $(document).ready(function () {
 			}
 		})
 	});
-	
-	$(document).on('click', '.reply', function () {
+
+	$(document).on('click', '#addComment, .reply', function () {
 		var commentId = $(this).attr("id");
 		$('#commentId').val(commentId);
-		$('#name').focus();
+		$('#commentForm').slideToggle(300, function () {
+			if ($(this).is(':hidden')) {
+				$('#addComment').html('Add Comment');
+				
+			} else {
+				$('#addComment').html('Hide Form');
+				$('#name').focus();
+			}
+		});
+	});
+
+	$('#addComment').click(function () {
+		$('#commentForm').slideToggle(300, function () {
+			if ($(this).is(':hidden')) {
+				$('#addComment').html('Add Comment');
+			} else {
+				$('#addComment').html('Hide Form');
+				$('#name').focus();
+			}
+		});
+		return false;
 	});
 
 });

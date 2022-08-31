@@ -1,8 +1,8 @@
 $(document).ready(function () {
-	$('#commentForm').hide();
-	showComments();
+    $('#commentForm, #hideForm').hide();
+    showComments();
 
-	$('#commentForm').on('submit', function (event) {
+    $('#commentForm').on('submit', function (event) {
 		event.preventDefault();
 		var formData = $(this).serialize();
 		$.ajax({
@@ -22,16 +22,22 @@ $(document).ready(function () {
 			}
 		})
 	});
-	
-	$(document).on('click', '.reply', function () {
+
+    $(document).on('click', '#addComment, .reply', function () {
 		var commentId = $(this).attr("id");
 		$('#commentId').val(commentId);
-		$('#name').focus();
+		$('#commentForm, #hideForm').show();
+        $('#name').focus();
+        $('#addComment').hide();
+	});
+
+    $(document).on('click', '#hideForm', function () {
+        $('#commentForm, #hideForm').hide();
+        $('#addComment').show();
 	});
 
 });
 
-// function to show comments
 function showComments() {
 	$.ajax({
 		url: "show_comments.php",
@@ -41,6 +47,3 @@ function showComments() {
 		}
 	})
 }
-
-
-
