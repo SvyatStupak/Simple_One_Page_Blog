@@ -2,13 +2,12 @@
 include('templates/blocks/header.php');
 ?>
 <title>Simple One Page Blog</title>
-<script src="js/index.js"></script>
+<script src="js/addComments.js"></script>
 <?php include('templates/blocks/container.php');?>
 	<div class="container">		
 		<h2>Simple One Page Blog</h2>	
 		<div>
 		<button type="text" name="addComment" id="addComment" class="btn btn-primary" >Add Comment</button>
-		<!-- <button type="text" name="hideForm" id="hideForm" class="btn btn-primary" style="display: none;">Hide Form</button> -->
 		</div>		
 		<br>
 		<form method="POST" id="commentForm" style="display: none;">
