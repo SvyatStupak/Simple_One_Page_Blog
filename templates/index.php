@@ -2,7 +2,7 @@
 include('templates/blocks/header.php');
 ?>
 <title>Simple One Page Blog</title>
-<script src="js/copy.js"></script>
+<script src="js/index.js"></script>
 <?php include('templates/blocks/container.php');?>
 	<div class="container">		
 		<h2>Simple One Page Blog</h2>	
@@ -20,6 +20,7 @@ include('templates/blocks/header.php');
 			</div>
 			<span id="message"></span>
 			<br>
+			<div class="value-set"></div>
 			<div class="form-group">
 				<input type="hidden" name="commentId" id="commentId" value="0" />
 				<input type="submit" name="submit" id="submit" class="btn btn-primary" value="Post Comment" />

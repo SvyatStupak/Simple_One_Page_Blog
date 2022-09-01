@@ -1,8 +1,9 @@
 $(document).ready(function () {
-    $('#commentForm, #hideForm').hide();
-    showComments();
+	showComments();
 
-    $('#commentForm').on('submit', function (event) {
+	$(".value-set").stars({ value:4 });
+
+	$('#commentForm').on('submit', function (event) {
 		event.preventDefault();
 		var formData = $(this).serialize();
 		$.ajax({
@@ -23,21 +24,35 @@ $(document).ready(function () {
 		})
 	});
 
-    $(document).on('click', '#addComment, .reply', function () {
+	$(document).on('click', '#addComment, .reply', function () {
 		var commentId = $(this).attr("id");
 		$('#commentId').val(commentId);
-		$('#commentForm, #hideForm').show();
-        $('#name').focus();
-        $('#addComment').hide();
+		$('#commentForm').slideToggle(300, function () {
+			if ($(this).is(':hidden')) {
+				$('#addComment').html('Add Comment');
+				
+			} else {
+				$('#addComment').html('Hide Form');
+				$('#name').focus();
+			}
+		});
 	});
 
-    $(document).on('click', '#hideForm', function () {
-        $('#commentForm, #hideForm').hide();
-        $('#addComment').show();
+	$('#addComment').click(function () {
+		$('#commentForm').slideToggle(300, function () {
+			if ($(this).is(':hidden')) {
+				$('#addComment').html('Add Comment');
+			} else {
+				$('#addComment').html('Hide Form');
+				$('#name').focus();
+			}
+		});
+		return false;
 	});
 
 });
 
+// function to show comments
 function showComments() {
 	$.ajax({
 		url: "show_comments.php",
@@ -47,3 +62,8 @@ function showComments() {
 		}
 	})
 }
+
+
+
+
+
