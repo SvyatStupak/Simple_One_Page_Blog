@@ -1,3 +1,3 @@
 <?php
 
-echo json_encode($status);
+echo json_encode($statusComm);

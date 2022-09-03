@@ -16,8 +16,14 @@ class Controller
     public function render()
     {
         $commentHTML = $this->objDB->showComments();
-        $status = $this->objDB->store();
-        echo $this->getContent(compact('commentHTML', 'status'));
+
+        $statusComm = $this->objDB->storeComments();
+
+        $statusRate = $this->objDB->storeRate();
+
+        $getStat = $this->objDB->getStat();
+
+        echo $this->getContent(compact('commentHTML', 'statusComm', 'statusRate', 'getStat'));
     }
 
     public function getContent($vars = [])

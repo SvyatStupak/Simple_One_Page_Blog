@@ -22,12 +22,38 @@ class MyDB
         }
     }
 
-    public function store()
+    public function getStat()
     {
-        if (!empty($_POST["name"]) && !empty($_POST["comment"])) {
+        $allEstimate = $this->getGrade();
+        $positiveRate = $this->getGrade(3, '>');
+        $negativeRate = $this->getGrade(3, '<');
 
+        $stat = array(
+            'allEstimate'  => $allEstimate,
+            'positiveRate' => $positiveRate,
+            'negativeRate' => $negativeRate,
+        );
+        
+        return $stat;
+    }
 
-            try {
+    public function getGrade($stars = '', $operand = '')
+    {
+        try {
+            $query = "SELECT COUNT(comment_id) as count_post FROM comments_rating WHERE rating $operand $stars";
+            $result = $this->db->query($query);
+            $data = $result->fetch_row();
+            return $data[0];
+        } catch (\Exception $e) {
+            echo $e->getMessage();
+        }
+    }
+
+    public function storeComments()
+    {
+        try {
+            if (!empty($_POST["name"]) && !empty($_POST["comment"])) 
+            {
                 $insertComments = "INSERT INTO comment (parent_id, comment, sender) 
                                 VALUES ('" . $_POST["commentId"] . "', '" . $_POST["comment"] . "', '" . $_POST["name"] . "')";
                 $result = $this->db->query($insertComments);
@@ -35,23 +61,55 @@ class MyDB
                 if (!$result) {
                     throw new \Exception("ERROR: " . $this->db->errno . ' | ' . $this->db->error);
                 }
-            } catch (\Exception $e) {
-                echo $e->getMessage();
+            
+                $message = '<label class="text-success">Comment posted Successfully.</label>';
+                $status = array(
+                    'error'  => 0,
+                    'message' => $message
+                );
+            } else {
+                $message = '<label class="text-danger">Error: Comment not posted.</label>';
+                $status = array(
+                    'error'  => 1,
+                    'message' => $message
+                );
             }
-
-            $message = '<label class="text-success">Comment posted Successfully.</label>';
-            $status = array(
-                'error'  => 0,
-                'message' => $message
-            );
-        } else {
-            $message = '<label class="text-danger">Error: Comment not posted.</label>';
-            $status = array(
-                'error'  => 1,
-                'message' => $message
-            );
+            return $status;
+        } catch (\Exception $e) {
+            $e->getMessage();
         }
-        return $status;
+    }
+
+    public function storeRate()
+    {
+        try {
+            if (isset($_POST['commentID']) AND isset($_POST['rating'])) 
+            {
+                $commentID = $_POST["commentID"];
+                $rating = $_POST["rating"];
+
+                $sql = "INSERT INTO comments_rating (comment_id,rating) VALUES ('$commentID','$rating')";
+                $result = $this->db->query($sql);
+            if (!$result) {
+                throw new \Exception("ERROR: " . $this->db->errno . ' | ' . $this->db->error);
+            }
+                $message = '<label class="text-success">Estimate added Successfully.</label>';
+                $status = array(
+                    'error'  => 0,
+                    'message' => $message
+                );
+            } else {
+                $message = '<label class="text-danger">Error: Estimate not added.</label>';
+                $status = array(
+                    'error'  => 1,
+                    'message' => $message
+                );
+            }
+            return $status;
+        } catch (\Exception $e) {
+            $e->getMessage();
+        }
+
     }
 
     public function showComments()
@@ -63,10 +121,27 @@ class MyDB
             while ($comment = mysqli_fetch_assoc($commentsResult)) {
                 $commentHTML .= '
 		<div class="panel panel-primary">
-		<div class="panel-heading">By <b>' . $comment["sender"] . '</b> on <i>' . $comment["date"] . '</i></div>
-		<div class="panel-body">' . $comment["comment"] . '</div>
-		<div class="panel-footer" align="right"><button type="button" class="btn btn-primary reply" id="' . $comment["id"] . '">Reply</button></div>
-		</div> ';
+            <div class="panel-heading">By <b>' . $comment["sender"] . '</b> on <i>' . $comment["date"] . '</i></div>
+            <div class="panel-body">' . $comment["comment"] . '</div>
+            <div class="panel-footer" align="right">
+                <button  type="button" class="btn btn-primary reply" id="' . $comment["id"] . '">Reply</button>
+            </div>  
+		</div>
+
+        <form  method="post" class="rateForm">
+
+            <label>Rate user comment ' . $comment["sender"] . '</label>
+            <div class="rateyo" id="rating" data-rateyo-rating="4" data-rateyo-num-stars="5" data-rateyo-score="3"></div>
+            
+            <span class=\'result\'>4</span>
+            <input type="hidden" name="rating">
+            <input type="hidden" name="commentID" id="commentID" value="' . $comment["id"] . '"/>
+            
+            <div><button type="submit" name="addRate" id="addRate" class="addRate btn btn-primary">Estimate</button></div>
+    
+        </form>
+        <br>';
+
                 $commentHTML .= $this->getCommentReply($comment["id"]);
             }
             return $commentHTML;
@@ -94,8 +169,7 @@ class MyDB
 				<div class="panel-heading">By <b>' . $comment["sender"] . '</b> on <i>' . $comment["date"] . '</i></div>
 				<div class="panel-body">' . $comment["comment"] . '</div>
 				<div class="panel-footer" align="right"><button type="button" class="btn btn-primary reply" id="' . $comment["id"] . '">Reply</button></div>
-				</div>
-				';
+				</div>';
                     $commentHTML .= $this->getCommentReply($comment["id"], $marginLeft);
                 }
             }
@@ -104,113 +178,4 @@ class MyDB
             echo $e->getMessage();
         }
     }
-
-    // public function getAll()
-    // {
-    //     try {
-    //         $query = "SELECT * FROM users";
-    //         $result = $this->db->query($query);
-    //         if (!$result) {
-    //             throw new Exception("ERROR: " . $this->db->errno . '|' . $this->db->error);
-    //         }
-
-    //         $resultArr = [];
-    //         while ($row = mysqli_fetch_assoc($result)) {
-    //             $resultArr[] = $row;
-    //         }
-    //         return $resultArr;
-    //     } catch (\Exception $e) {
-    //         echo $e->getMessage();
-    //     }
-    // }
-
-    // public function getNameColumns()
-    // {
-    //     try {
-    //         $query = "SHOW COLUMNS FROM users";
-    //         $result = $this->db->query($query);
-    //         if (!$result) {
-    //             throw new Exception("ERROR: " . $this->db->errno . '|' . $this->db->error);
-    //         }
-
-    //         $resultNameColumns = [];
-    //         while ($row = mysqli_fetch_array($result)) {
-    //             $resultNameColumns[] = $row['Field'];
-    //         }
-    //         return $resultNameColumns;
-    //     } catch (\Exception $e) {
-    //         echo $e->getMessage();
-    //     }
-    // }
-
-    // public function store($csv, $fieldsInBD)
-    // {
-    //     if (PASS_FIRST) array_shift($csv);
-    //     $columns = '';
-    //     foreach ($fieldsInBD as $key => $files) {
-    //         $columns .= '`' . $files . '`' . ',';
-    //     }
-    //     $columns = trim($columns, ',');
-
-    //     if ($columns) {
-    //         $str = '';
-    //         foreach ($csv as $item) {
-    //             $r = '';
-    //             foreach ($item as $value) {
-    //                 $r .= "'" . $this->db->real_escape_string($value) . "',";
-    //             }
-    //             $r = trim($r, ',');
-
-    //             if (strlen($r) != 0) {
-    //                 $str .= '(' . $r . '),';
-    //             }
-    //         }
-    //         $str = trim($str, ',');
-
-
-
-    //         try {
-    //             $query = "REPLACE INTO `users` (" . $columns . ") VALUES " . $str;
-    //             $result = $this->db->query($query);
-    //             if (!$result) {
-    //                 throw new Exception("ERROR: " . $this->db->errno . ' | ' . $this->db->error);
-    //             }
-    //             echo "<script type=\"text/javascript\">
-    //                     alert(\"CSV File has been successfully Imported.\");
-    //                     window.location = \"index.php\"
-    //                   </script>";
-    //         } catch (\Exception $e) {
-    //             echo $e->getMessage();
-    //         }
-    //     }
-    // }
-
-    // public function export()
-    // {
-    //     header('Content-Type: text/csv; charset=utf-8');
-    //     header('Content-Disposition: attachment; filename=data.csv');
-    //     $output = fopen("php://output", "w");
-    //     $nameColumns = $this->getNameColumns();
-    //     fputcsv($output, $nameColumns);
-    //     $query = "SELECT * from `users`";
-    //     $result = $this->db->query($query);
-    //     while ($row = mysqli_fetch_assoc($result)) {
-    //         fputcsv($output, $row);
-    //     }
-    //     fclose($output);
-    //     exit();
-    // }
-
-    // public function delete()
-    // {
-    //     $query = "DELETE FROM `users`";
-    //     $result = $this->db->query($query);
-    //     if (!$result) {
-    //         throw new Exception("ERROR: " . $this->db->errno . '|' . $this->db->error);
-    //     }
-    //     echo "<script type=\"text/javascript\">
-    //                     alert(\"Data from the database has been deleted.\");
-    //                     window.location = \"index.php\"
-    //                   </script>";
-    // }
 }
